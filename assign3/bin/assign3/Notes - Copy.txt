@@ -1,0 +1,202 @@
+What is functional Language?
+	
+	First order Funciton:
+	Store a function in a variable or in a collection, pass it as an argument or return it as an result. It's just a other kind of value.
+	
+	Stateless:
+	This languages are like mathematical functions i.e. they take some values as input and provide some value as output, they are not dependent on any outside states or affect any outside state.
+		Two Advantages:
+			First: Pure functions i.e. no reading of any files or writig of files i.e. no need of golbal data and they are easy to understand. They do not rely on anything outside it.
+			Second: Pure functions can run concurrently.
+		
+	Immutable Data: No change in data.
+	
+Clojure is impure function language. It helps you structure your code in functional way
+
+Any object in clojure is regular java object.
+
+"nil" is treated as FALSE. (It can be used as if(nil){then do this})
+
+What is presistent collection?
+	It can't be changed but we can modify it's cheap (time and space) copies i.e. if we enter a new element at end of a collection it will return the new copy of list with modification.
+	
+	In clojure presistent collection are 
+		list     (0 1 3) - sequential lookup time.
+		vector   [1 5 8] - numeric indexed collection, constant lookup due to implementation of hashing.
+		hashmap   {"foo" 4 5 9} - Unordered key value collection. 
+				  {key value key value}
+				  
+
+Identifier in Clojure are called "Symbols": sequence of char where there are rules what this char can be.
+
+In clojure we can attach map as metadata to any object so we can have a vector which is attach to map which has the vector's information.
+
+If two vectors with same value but different metadata are subjected to equality test answer is true.
+
+Except "var" all datatypes are immutable. "var" is a mutable reference (object which is an pointer to an other object). We can change what "var" points to.
+
+Namespace: Associative collection which maps symbol keys to values which are vars
+
+Symbols evaluate into vars and list i.e. (sum 3 4) evaluates into funcation calls. For example (iguana/hippo [nil 3](kangaroo)), here iguana namespace should contain symbol hippo which should contain function with arguments of vector "[nil 3]" and value returned by call to "kangaroo" which is called with no args.
+
+Special forms: special kind to list evaluation, not a function call.
+	i.e. def, if, do, let, quote, var, jn. loop, recur, throw, try, ., new, set!
+	If list begins with any of this, it is evaluated in special form.
+	
+	"if": (if condition a b?) "?" indicates "b" is optional. If "if" true then "a" else "b". If "b" is not present and "condition" returns false "if" returns "nil".
+	
+	(if (vulture) (foo) (bar)) : Here we call "vulture" if it returns true we execute "foo" and return that value else "bar" and return that value.
+	
+
+	"quote": (cal (quote (foo (bar) 3))) here "foo (bar) 3" is passed as list and foo and bar are not resolved and list in which they are contained are not function calls.
+	
+	"def": Create or modify symbol var mapping in current name space.
+	i.e. (def bettle 3): symbol bettle to some var containing the object 3
+	
+	In java						In clojure
+	Class.method()				(.Class method)
+								
+								(. foo bar 3 1) call to a method "bar" of instance "foo" with arguments 3 and 1.
+								
+								(. (ack) bar 3 1) instance object is whatever returened by "ack".
+								
+								Thus in clojure we can make totally dynamic call to the methods
+
+	"do": It is used to solve all the expression in a sequential manner.
+	i.e. (do 
+        (foo "First")
+        (first "sd" "df" "fg")
+        (printName "Viral"))
+		
+		It will solve "foo" then "first" and then "printName"
+	
+	"let": Same as "do" except it provides ability to bind values to names.
+	i.e. (let [pName "pName in Vector"]
+			(foo pName))
+		Here pName is associated with "pName is Vector", so foo will use this value of pName.
+		
+	
+	"fn": Defines or returns a function.
+	Syntax: (fn name? [parameter] expression*)
+	i.e.(def fnTry
+			(fn [a] (+ a 10))
+		)
+		
+		
+	"recure": For tailing recursion much memory is needed. Optimization is needed. As JVM does'nt have this in-built we have to use "recure" to explicitly notify JVM that optimization is needed. It will only take one stack frame for entire execution, not one stack for each call. And should be used in tail position.
+	Syntax: (recur arguments*)
+	
+	i.e.  (def recurTry
+			(fn [x] 
+				(println x)
+				(if(< x 2000)
+					(recur (+ x 2)))))
+	
+
+	"loop": It is same as "let" but if we use "recur" in "loop" then it rebinds the value at top (the new value)
+	Syntax: (loop [(name value)*] expression*)
+	
+	i.e. (loop [a 7]
+			(print a)
+			(if (< a 100)
+				(recur (+ a 4))))
+		
+		Here as in above example we need not to define a function. Whenever a recur is executed "a" is assigned the calculated value.
+		
+		
+	"throw" "try": Refer Docs
+	
+	
+Using symbols from other namespace:
+	1)interned: Ture members of namespace
+	2)referred: Borrowed from other namespace, it is there for convinence not real member of namespace, also there is only one object.
+	
+	If namespace B borrows a symbol from other namespace A, it will not appear in namespace C which borrows from B
+	
+	
+Macro: Insted of using same voletile code again and again we can create a macro. They are used for syntactical convinience (or compression). Macros are processed outside in i.e. if there is nesting of macros the most inside one will be evaluated first and then the outside one. They can also be processed recursively.
+	i.e. (defn printFn [x] (print x))
+		  Here "defn" is a macro in clojure.core thus above statement is processed as: (def printFn (fn [x] (print x))).
+		  
+	"defmacro": It is macro in clojure.core which helps in defining a macro. A macro function is really not a special type it is a function where "var" which is created is attached to a metadata that tell its a macro.
+	Syntax: (defmacro name [parameters*] expression*)
+
+
+Clojure supports inheritance with help of "hierarchies" we can take some symbols/keywords where we can explicitly define relation betweeen them such who act as parent and who as a child.
+	
+Multimethod function can be used for polymorphism where one function decides to call the appropriate function based on the argument passed to him. 
+
+Function which can take variable number of argument is called variadic function.
+
+(fish (quote george)) same as (fish 'george)
+
+Why are vars mutable? : vars are used to store all the global things of the code such as global data, golbal function. Mutable so that we can patch a running system such as take a buggie fn and replace it with proper fn while system is running because sometime bringing down the entire system is costly. 
+
+"Lockless concurrency": Three mutable data structure "refs", "agents", "atoms". "ref" is a reference which can only be changed in transaction.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Candy Distribution
+
+Three students sit in a circle while their teacher gives them candy. Each 
+student initially has an even number of pieces of candy. When the teacher 
+blows a whistle, each student simultaneously gives half of his or her own candy 
+to the neighbor on the right.  Any student who ends up with an odd number of 
+pieces of candy gets one more piece from the teacher.
+
+Write a Clojure program that includes four functions.
+1. Two parameters, the adjacent amounts of candy. Return the adjusted <---------------|
+amount of candy.                                                                      |
+																				      |
+2. One parameter, a vector of the three candy amounts and the number of               |
+turns. Declare the parameter in destructured form as [r s t u] so you can             |
+use the elements. Returns a vector of the adjusted candy amounts and the 			  |
+incremented number of turns.   -------------------------------------------------------|
+
+
+3. One parameter, a vector of the three candy amounts and the number of 
+turns. Returns the sequence of candy values and turn numbers including the 
+last vector in which the candy values are equal. Use the loop-recur form 
+of recursion with two parameters, the first, current, initially set to the
+parameter passed to the function, and the second, result, initialized to 
+an empty vector to accumulate the result. If the first three elements of 
+current (the candy amounts) are equal, then return return the vector 
+obtained using 'conj' to add current to result. Otherwise recur with the 
+the new value of current obtained from function 2, and the new value of 
+result obtained by using conj to add current to result. To get the ith 
+element of a vector v one can use (v i). 
+
+4. A test function that used the read function to input from the keyboard and calls function 3. Test using different inputs including some larger numbers.
+
+Post code and test runs on the course site.
